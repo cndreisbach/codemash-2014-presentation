@@ -1,0 +1,7 @@
+{
+  "name": "slides",
+  "dependencies": {
+    "reveal.js": "2.6.1"
+  }
+}
+
