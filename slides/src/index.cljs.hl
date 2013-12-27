@@ -1,20 +1,135 @@
-(page "index.html")
+(page "index.html"
+      (:require [slides :as s :refer [slides slide notes highlight]]))
+
+(add-initfn!
+ (fn []   
+   (.initialize
+    js/Reveal
+    (clj->js {:history true
+              :dependencies
+              [{:src "reveal.js/plugin/markdown/marked.js"}
+               {:src "reveal.js/plugin/markdown/markdown.js"}
+               {:src "reveal.js/plugin/highlight/highlight.js"
+                :async true
+                :callback (fn [] (.initHighlightingOnLoad js/hljs))}
+               {:src "reveal.js/plugin/notes/notes.js"
+                :async true}]}))))
 
 (html
   (head
-   (link {:rel "stylesheet"
-          :href "reveal.js/css/reveal.css"})
-   (link {:rel "stylesheet"
-          :href "reveal.js/css/theme/default.css"
-          :id "theme"}))
+   (link :rel "stylesheet"
+         :href "reveal.js/css/reveal.css")
+   (link :rel "stylesheet"
+         :href "reveal.js/css/theme/sky.css"
+         :id "theme")
+   (link :rel "stylesheet"
+         :href "reveal.js/plugin/highlight/github.min.css"))
   (body
-   (div {:class "reveal"}
-        (div {:class "slides"}
-             (section
-              (h2
-               "Single Horizontal Slide"))
-             (section
-              (section (h3 "Vertical Slide 1"))
-              (section (h3 "Vertical Slide 2")))))
-   (.initialize js/Reveal (cljs->js {}))))
+   (slides
+    (slide
+     (h1 "Secrets of Clojure Web Development")
+     (p "Clinton N. Dreisbach")
+     (p "CodeMash 2014"))
+    (slide
+     (slide
+      (h2 "The Big Secret")
+      (ul
+       (li "Web development is functional"))
+      (notes "A request comes in, a transformation is performed, a response is returned"))
+     (slide
+      (h2 "The Ring Cycle")
+      (p "Insert image of request->response with Ring")
+      (notes "Clojure provides good facilities for creating web apps with Ring and Compojure"))
+     (slide
+      (h2 "Next-Level Web Apps")
+      (ul
+       (li "Single-page apps")
+       (li "APIs")
+       (li "WebSockets"))
+      (notes
+       (p "When things get more complicated, though, how can Clojure help us?")
+       (p "I'm going to show three libraries that have helped me greatly"))))
+    (slide
+     (slide
+      (h1 "Hoplon"))
+     (slide
+      (h2 "What is Hoplon?")
+      (p "A ClojureScript client-side framework")
+      (notes
+       "At its core, Hoplon is a ClojureScript compiler that generates HTML pages and JavaScript. The HTML pages are a harness for the JS, which renders the pages and sets up their interactions. Hoplon is used for making powerful one-page apps."))
+     (slide
+      (h2 "HTML as s-expressions")
+      (ul
+       (li "HTML elements can be represented as ClojureScript")
+       (li "ClojureScript can be represented as HTML"))
+      (notes "One of the ideas that led to Hoplon is the idea that HTML is a Lisp. In Hoplon, you can create pages using either HTML or ClojureScript."))
+     (slide
+      (h2 "Hoplon with HTML syntax")
+      (highlight
+;;{{
+<script type="text/hoplon">
+  (page "index.html")
+
+  (defn duo [x y]
+    (ul (li x)
+        (li y)))
+</script>
+       
+<html>
+  <body>
+    <h1>Hello, Hoplon</h1>
+
+    <!-- an HTML syntax call to the duo function -->
+    <duo>
+      <div>first thing</div>
+      <div>second thing</div>
+    </duo>
+  </body>
+</html>
+;;}}       
+       ))
+     (slide
+      (h2 "Hoplon with CLJS syntax")
+      (highlight
+;;{{
+(page "index.html")
+
+(defn duo [x y]
+  (ul (li x)
+      (li y)))
+
+(html
+ (body
+  (h1 "Hello, Hoplon")
+  (duo "first thing" "second thing")))
+;;}}       
+       )
+      (notes "We are going to use the CLJS syntax for the rest of the presentation, but the HTML syntax can do anything the CLJS syntax can."))
+     (slide
+      (h2 "Hoplon as spreadsheet")
+      (ul
+       (li "Hoplon simplifies state by using cells")
+       (li "Cells work just like cells in a spreadsheet")
+       (li "Two kinds of cells: input and formula"))
+      (notes "Remember in a spreadsheet where you could have a cell A1 and a cell B1 and then set C1 to the quotient of them? And when you updated A1 or B1, C1 updated? Hoplon cells work just like this, but instead of referencing them by letter and number, they are referenced like any other Clojure value. They are a Clojure reference type like atoms and the same functions work on them, but they automatically propogate updates from input cells to formula cells."))
+     (slide
+      (h2 "Cell example")
+      (p "Put an example of cells here"))
+     (slide
+      (h2 "Hoplon and the DOM")
+      (p "Hoplon uses the DOM for input and output. Examples:")
+      (ul
+       (li "on-click")
+       (li "on-change"))
+      (ul
+       (li "do-value")
+       (li "do-class"))
+      (notes
+       "Hoplon uses the DOM for input and output. All user input is done through DOM events like on-click and on-change. Code is attached to these events, like you're used to from jQuery or other libraries. Output is done by manipulating the properties of DOM nodes using special do- attributes. The value of these attributes is always a formula cell.")))
+    (slide
+     (slide
+      (h1 "Liberator")))
+    (slide
+     (slide
+      (h1 "HTTP Kit"))))))
 

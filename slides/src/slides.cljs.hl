@@ -1,0 +1,27 @@
+(ns slides)
+
+(def slide section)
+
+(defelem markdown-slide
+  [attrs children]
+  (section (merge attrs {:data-markdown ""})
+           (script :type "text/template" children)))
+
+(defelem slide
+  [{:keys [markdown] :as attrs} children]
+  (if markdown
+    (markdown-slide (dissoc attrs :markdown) children)
+    (section attrs children)))
+
+(defelem slides
+  [{:keys [theme] :as attrs} children]
+  (div (-> attrs (dissoc :theme) (merge {:class "reveal"}))
+       (div :class "slides" children)))
+
+(defelem notes
+  [attrs children]
+  (aside (merge attrs {:class "notes"}) children))
+
+(defelem highlight
+  [attrs children]
+  (pre (code attrs children)))
