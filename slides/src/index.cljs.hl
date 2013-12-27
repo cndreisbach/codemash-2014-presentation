@@ -1,6 +1,20 @@
 (page "index.html")
 
 (html
-  (head)
+  (head
+   (link {:rel "stylesheet"
+          :href "reveal.js/css/reveal.css"})
+   (link {:rel "stylesheet"
+          :href "reveal.js/css/theme/default.css"
+          :id "theme"}))
   (body
-    (h1 "Hello, World!")))
+   (div {:class "reveal"}
+        (div {:class "slides"}
+             (section
+              (h2
+               "Single Horizontal Slide"))
+             (section
+              (section (h3 "Vertical Slide 1"))
+              (section (h3 "Vertical Slide 2")))))
+   (.initialize js/Reveal (cljs->js {}))))
+
