@@ -157,14 +157,18 @@
  :id "new-todo"
  :type "text"
  :do-focus loaded?
- :do-attr (cell= {:placeholder (if loaded? "What needs to be done?" "Loading...")}) 
+ :do-attr (cell= {:placeholder (if loaded?
+                                 "What needs to be done?"
+                                 "Loading...")}) 
  :on-focusout #(do! (by-id :new-todo) :value ""))
 ;;}}       
        )
       (notes "You can see in this input element an example of do- and on- parameters. Starting with :do-focus, you can see that it's looking at the value of the loaded? cell. If the loaded? cell contains true, then focus on this input. This means that this input will gain focus when loaded? becomes true. :do-attr sets the placeholder attribute on this input based on the current loading state. It uses an anonymous cell so that this will update. We didn't have to use an anonymous cell with :do-focus because loaded? is a cell. Lastly, look at :on-focusout. The do! multimethod allows us to programmatically do the same thing we do with the do- attributes: update a DOM element."))
      (slide
       (h2 "Full example of Hoplon")
-      (p "TODO Put full example here"))
+      (a :href "https://github.com/cndreisbach/codemash-2014-presentation/blob/master/todo-hoplon/src/index.cljs.hl"
+         :target "_blank"
+         "Code on GitHub"))
      (slide
       (h2 "Hoplon compiles to static files")
       (ul
