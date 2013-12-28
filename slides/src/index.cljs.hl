@@ -40,8 +40,12 @@
      (slide
       (h2 "The Big Secret")
       (ul
-       (li "Web development is functional"))
-      (notes "A request comes in, a transformation is performed, a response is returned"))
+       (li "Web development is functional")
+       (li "Clojure is great at web development"))
+      (notes "A request comes in, a transformation is performed, a response is returned. Web development lends itself to functional programming well. Many people new to Clojure think that Clojure isn't the best language for web development because it doesn't have a comprehensive framework like Play or Ruby on Rails."))
+     (slide
+      (h2 "Libraries over frameworks")
+      (notes "Clojure just has a different approach: libraries that work well together and that you can mix and match. Does this make getting started harder? Yes, because you have to pick your tools. But once you start, Clojure web development can be a blast."))
      (slide
       (h2 "The Ring Cycle")
       (p "Insert image of request->response with Ring")
@@ -119,8 +123,21 @@
        (li "Two kinds of cells: input and formula"))
       (notes "Remember in a spreadsheet where you could have a cell A1 and a cell B1 and then set C1 to the quotient of them? And when you updated A1 or B1, C1 updated? Hoplon cells work just like this, but instead of referencing them by letter and number, they are referenced like any other Clojure value. They are a Clojure reference type like atoms and the same functions work on them, but they automatically propogate updates from input cells to formula cells."))
      (slide
-      (h2 "Cell example")
-      (p "TODO Put an example of cells here"))
+      (h2 "Hoplon cell example")
+      (highlight
+;;{{
+(def state       (cell []))
+(def completed   (cell= (filter :completed state)))
+(def active      (cell= (remove :completed state)))
+(def plural-item (cell= (pluralize "item" (count active))))
+
+;; Later in the page
+(span :id "todo-count"
+      (strong (text "~(count active) "))
+      (span (text " ~{plural-item} left")))
+;;}}       
+       )
+      (notes "You can see in the first four lines here how we set up an input cell and three formula cells. When the value in state is changed, the three formula cells are automatically updated. The string interpolation below binds these text nodes to the values of the formula cells. The change is propogated into the text cells."))
      (slide
       (h2 "Hoplon and the DOM")
       (p "Hoplon uses the DOM for input and output. Examples:")
@@ -132,6 +149,19 @@
        (li "do-class"))
       (notes
        "Hoplon uses the DOM for input and output. All user input is done through DOM events like on-click and on-change. Code is attached to these events, like you're used to from jQuery or other libraries. Output is done by manipulating the properties of DOM nodes using special do- attributes. The value of these attributes is always a formula cell."))
+     (slide
+      (h2 "Hoplon DOM example")
+      (highlight
+;;{{
+(input
+ :id "new-todo"
+ :type "text"
+ :do-focus loaded?
+ :do-attr (cell= {:placeholder (if loaded? "What needs to be done?" "Loading...")}) 
+ :on-focusout #(do! (by-id :new-todo) :value ""))
+;;}}       
+       )
+      (notes "You can see in this input element an example of do- and on- parameters. Starting with :do-focus, you can see that it's looking at the value of the loaded? cell. If the loaded? cell contains true, then focus on this input. This means that this input will gain focus when loaded? becomes true. :do-attr sets the placeholder attribute on this input based on the current loading state. It uses an anonymous cell so that this will update. We didn't have to use an anonymous cell with :do-focus because loaded? is a cell. Lastly, look at :on-focusout. The do! multimethod allows us to programmatically do the same thing we do with the do- attributes: update a DOM element."))
      (slide
       (h2 "Full example of Hoplon")
       (p "TODO Put full example here"))
@@ -289,4 +319,3 @@
      (h1 "Putting it all together"))
     (slide
      (h1 "Finis")))))
-
