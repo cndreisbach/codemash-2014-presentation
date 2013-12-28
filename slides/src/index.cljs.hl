@@ -15,6 +15,12 @@
                {:src "reveal.js/plugin/notes/notes.js"
                 :async true}]}))))
 
+(defn quicklist
+  [& things]
+  (ul
+   (loop-tpl :bindings [x things]
+             (li @x))))
+
 (html
   (head
    (link :rel "stylesheet"
@@ -114,7 +120,7 @@
       (notes "Remember in a spreadsheet where you could have a cell A1 and a cell B1 and then set C1 to the quotient of them? And when you updated A1 or B1, C1 updated? Hoplon cells work just like this, but instead of referencing them by letter and number, they are referenced like any other Clojure value. They are a Clojure reference type like atoms and the same functions work on them, but they automatically propogate updates from input cells to formula cells."))
      (slide
       (h2 "Cell example")
-      (p "Put an example of cells here"))
+      (p "TODO Put an example of cells here"))
      (slide
       (h2 "Hoplon and the DOM")
       (p "Hoplon uses the DOM for input and output. Examples:")
@@ -125,11 +131,162 @@
        (li "do-value")
        (li "do-class"))
       (notes
-       "Hoplon uses the DOM for input and output. All user input is done through DOM events like on-click and on-change. Code is attached to these events, like you're used to from jQuery or other libraries. Output is done by manipulating the properties of DOM nodes using special do- attributes. The value of these attributes is always a formula cell.")))
+       "Hoplon uses the DOM for input and output. All user input is done through DOM events like on-click and on-change. Code is attached to these events, like you're used to from jQuery or other libraries. Output is done by manipulating the properties of DOM nodes using special do- attributes. The value of these attributes is always a formula cell."))
+     (slide
+      (h2 "Full example of Hoplon")
+      (p "TODO Put full example here"))
+     (slide
+      (h2 "Hoplon compiles to static files")
+      (ul
+       (li "They can be used anywhere")
+       (li "And with any backend"))))
     (slide
      (slide
-      (h1 "Liberator")))
+      (h1 "Liberator"))
+     (slide
+      (h2 "REST APIs with Liberator")
+      (ul
+       (li "Liberator provides resources")
+       (li "Resources are decision trees")
+       (li "Resources provide a REST interface")
+       (li "Resources are Ring handlers"))
+      (notes "Liberator implements RFC 2616, the HTTP 1.1 spec. It heelps create REST resources. At their core, these resources are decision trees."))
+     (slide
+      (h2 "Simple Liberator decision tree")
+      (p "TODO add simple tree"))
+     (slide
+      (h2 "Simple Liberator example")
+      (highlight
+;;{{
+(require '[liberator.core :refer [defresource]])
+
+(defresource hello
+  :exists? (fn [ctx]
+             (let [lang (get-in ctx [:request :params :lang])]
+               (contains? #{"en" "es"} lang)))
+  :handle-ok (fn [ctx]
+               (let [lang (get-in ctx [:request :params :lang])]
+                 (if (= lang "es")
+                   "Hola mundo!"
+                   "Hello world!")))
+  :handle-not-found (fn [ctx]
+                      "Language not found."))       
+;;}}
+       )
+      (notes "Look at the exists? function. It takes a context, which all functions in a resource should take. The context has the request in it, as well as the response. In this resource, we look to see if the language parameter is equal to 'en' or 'es' and if so, then handle-ok is called. If not, handle-not-found is called. We did not have to define handle-ok and handle-not-found: Liberator provides default functions for all decisions and handlers. There's repeated code here, though, to look up the language, and I probably should have looked it up a third time in :handle-not-found. Let's see how we can fix that."))
+     (slide
+      (h2 "Liberator context")
+      (highlight
+;;{{
+(require '[liberator.core :refer [defresource]])
+
+(defresource hello
+  :exists? (fn [ctx]
+             (let [lang (get-in ctx [:request :params :lang])]
+               (if (contains? #{"en" "es"} lang)
+                 {:lang lang})))
+  :handle-ok (fn [ctx]
+               (let [lang (:lang ctx)]
+                 (if (= lang "es")
+                   "Hola mundo!"
+                   "Hello world!")))
+  :handle-not-found (fn [ctx]
+                      "Language not found."))       
+;;}}       
+       )
+      (notes "See here how we returned a map from exists?? Any time we return a map, it is merged into the context map and available elsewhere. We could have even used destructuring to pull lang out, but I didn't want to confuse the issue. That's more idiomatic of my usage, though. It looks like we can't get lang so easily in handle-not-found, but Liberator does provide a way."))
+     (slide
+      (h2 "Liberator context on decision failure")
+      (highlight
+;;{{
+(require '[liberator.core :refer [defresource]])
+
+(defresource hello
+  :exists? (fn [{:keys req}]
+             (let [lang (get-in req [:params :lang])]
+               ;; Return a vector instead of a map.
+               [(contains? #{"en" "es"} lang) {:lang lang}]))
+  :handle-ok (fn [{:keys [lang]}]
+               (if (= lang "es")
+                 "Hola mundo!"
+                 "Hello world!"))
+  :handle-not-found (fn [{:keys [lang]}]
+                      (str "Language " lang " not found.")))
+;;}}       
+       )
+      (notes "Instead of returning a map from a decision function, we can return a length-2 vector, where the first element is whether the decision passed and the second is the map to update the context with."))
+     (slide
+      (h2 "More complex decision tree")
+      (p "TODO insert more complex decision tree"))
+     (slide
+      (h2 "Liberator decisions")
+      (quicklist
+       "allowed?"
+       "authorized?"
+       "exists?"
+       "existed?"
+       "known-content-type?"
+       "method-allowed?"
+       "moved-permanently?"
+       "moved-temporarily?")
+      (notes "These are just a few of the decisions in Liberator. The full list is very long, but luckily all of them have reasonable defaults, so you only need to define the ones pertaining to your resource."))
+     (slide
+      (h2 "Liberator handlers")
+      (quicklist
+       "handle-ok"
+       "handle-created"
+       "handle-forbidden"
+       "handle-not-found"
+       "handle-not-implemented")
+      (notes "Like with the decisions, these are only a few of the handlers in Liberator."))
+     (slide
+      (h2 "Liberator actions")
+      (quicklist "post!" "put!" "delete!")
+      (notes "These are all the actions in Liberator. I didn't mention actions before, but they are what they look like: functions for dealing with requests that do not use the GET method, and which likely have side-effects. These do continue on to handlers. For example, post! checks a decision function, new?, after it completes successfully. If new? is true, handle-created is called."))
+     (slide
+      (h2 "Liberator's decision graph")
+      (a :href "liberator-decision-graph.svg"
+         :target "_blank"
+         "Link to decision graph"))
+     (slide
+      (h2 "Liberator representations")
+      (ul
+       (li "Handlers return representations")
+       (li
+        (code "liberator.representation/Representation")
+        " is a protocol")
+       (li "This protocol defines "
+           (code "as-response")
+           ", which returns a Ring response")
+       (li
+        (strong "Very tricky: ")
+        "maps extend this protocol")
+       (li
+        "Use "
+        (code "liberator.representation/ring-response")
+        " to avoid transformation"))
+      (notes "Liberator tries to do the smart thing with your response. Liberator has a lot of logic around this and does not treat maps as Ring responses. Depending on the content-type, your map might be rendered as an HTML table, a CSV, or transformed into JSON or XML. If you have a map you have created as a Ring response, make sure to use liberator.representation/ring-response to designate it as a response. This has bit me as a subtle bug in the past."))
+     (slide
+      (h2 "Full example")
+      (p "TODO put full example here")))
     (slide
      (slide
-      (h1 "HTTP Kit"))))))
+      (h1 "HTTP Kit"))
+     (slide
+      (h2 "A Clojure web server")
+      (quicklist
+       "Supports WebSockets and long polling"
+       "Supports HTTP streaming"
+       "Compatible with Ring"
+       "So fast"
+       "Also a HTTP client"))
+     (slide
+      (h2 "Streaming example"))
+     (slide
+      (h2 "WebSocket example")
+      (notes "Note the unified API, allowing us to degrade to long polling")))
+    (slide
+     (h1 "Putting it all together"))
+    (slide
+     (h1 "Finis")))))
 
