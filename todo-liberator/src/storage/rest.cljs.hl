@@ -1,19 +1,7 @@
 (ns storage.rest
-  (:require-macros [cljs.core.async.macros :refer [go]])  
   (:require
    [tailrecursion.hoplon.storage-atom :refer [store IStorageBackend]]
-   [ajax.core :refer [GET POST]]
-   [cljs.core.async :refer [chan <! put!]]))
-
-(defn -get-channel
-  [url not-found]
-  (let [the-chan (chan)]
-    (GET url
-         {:handler (fn [response]
-                     (put! the-chan response))
-          :error-handler (fn [_]
-                           (put! the-chan not-found))})
-    the-chan))
+   [ajax.core :refer [GET POST]]))
 
 (deftype RestStorageBackend [url atom loaded?]
   IStorageBackend
@@ -24,7 +12,7 @@
                      (reset! loaded? true))})
     @atom)
   (-commit! [this value]
-    (POST url :params {:value value})))
+    (POST url {:params {:value value}})))
 
 (deftype NullStorageBackend []
   IStorageBackend

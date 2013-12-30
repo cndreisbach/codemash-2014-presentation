@@ -15,7 +15,7 @@
                  [tailrecursion/boot.core   "1.1.0"]
                  [tailrecursion/boot.task   "1.0.0"]
                  [tailrecursion/hoplon      "4.0.7"]
-                 [org.clojure/clojurescript "0.0-2127"]
+                 [org.clojure/clojurescript "0.0-1934"]
                  [cljs-ajax                 "0.2.3"]
                  [http-kit "2.1.13"]
                  [compojure "1.1.5"]

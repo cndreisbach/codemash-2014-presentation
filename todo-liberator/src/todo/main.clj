@@ -5,7 +5,8 @@
             [compojure.handler :refer [site]]
             [compojure.core :refer [defroutes GET POST ANY]]
             [compojure.route :as route]
-            [liberator.dev :refer [wrap-trace]]))
+            [liberator.dev :refer [wrap-trace]]
+            [liberator.core :refer [defresource]]))
 
 (def stop-server (atom nil))
 (def in-dev? (atom false))
@@ -15,15 +16,27 @@
 ;; GET /list - return list
 ;; POST /list - update list
 
+(defonce todo-list (atom []))
+
 (defn app
   [req]
   {:status  200
    :headers {"Content-Type" "text/html"}
    :body    "hello HTTP!!!!"})
 
+(defresource list-resource
+  :allowed-methods [:get :post]
+  :available-media-types ["application/edn"]
+  :handle-ok (fn [ctx] @todo-list)
+  :post! (fn [ctx]           
+           (let [body (slurp (get-in ctx [:request :body]))
+                 new-list (:value (read-string body))]
+             (println new-list)
+             (reset! todo-list new-list))))
+
 (defroutes all-routes
   (GET "/" [] (resource-response "public/index.html"))
-  (ANY "/list" [] app)
+  (ANY "/list" [] list-resource)
   (route/resources "/")
   (route/not-found "Page not found"))
 
