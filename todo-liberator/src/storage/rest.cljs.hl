@@ -1,7 +1,46 @@
 (ns storage.rest
   (:require
-   [tailrecursion.hoplon.storage-atom :refer [store IStorageBackend]]
-   [ajax.core :refer [GET POST]]))
+   [ajax.core :refer [GET POST]]
+   [cljs.reader :refer [read-string]]))
+
+(defprotocol IStorageBackend
+  "Represents a storage resource."
+  (-get [this not-found])
+  (-commit! [this old-value new-value] "Commit value to storage at location."))
+
+(deftype StorageBackend [store key]
+  IStorageBackend
+  (-get [this not-found]
+    (if-let [existing (.getItem store (pr-str key))]
+      (read-string existing)
+      not-found))
+  (-commit! [this old-value new-value]
+    (.setItem store (pr-str key) (pr-str new-value))))
+
+(defn vreplace [v old new]
+  (vec (map (fn [item]
+              (if (= item old)
+                new
+                item)) v)))
+
+;; diff shows sub-maps -- we need to not do that
+;; Look at old-map and new-map
+
+(defn deleted-from-new-map
+  [old-map new-map]
+  (let [new-ids (set (remove nil? (map :id new-map)))]
+    (remove #(or (contains? new-ids (:id %))
+                 (nil? (:id %))) old-map)))
+
+(defn changed-in-new-map
+  [old-map new-map]
+  (remove (fn [item]
+            (some #(= item %) old-map)) new-map))
+
+(defn map-diff
+  [old-map new-map]
+  [(deleted-from-new-map old-map new-map)
+   (changed-in-new-map old-map new-map)])
 
 (deftype RestStorageBackend [url atom loaded?]
   IStorageBackend
@@ -11,18 +50,37 @@
                      (reset! atom response)
                      (reset! loaded? true))})
     @atom)
-  (-commit! [this value]
-    (POST url {:params {:value value}})))
+  (-commit! [this old-value new-value]
+    (if @loaded?
+      (let [[deleted changed] (map-diff old-value new-value)]
+        (doseq [old-thing deleted]
+          (if-let [id (:id old-thing)]
+            (POST (str url "/" id) {:params {:delete true}})))
+        (doseq [new-thing changed]
+          (if-let [id (:id new-thing)]
+            (POST (str url "/" id) {:params new-thing})
+            (POST url {:params new-thing
+                       :handler (fn [response]
+                                  (swap! atom vreplace new-thing response))})))))))
 
 (deftype NullStorageBackend []
   IStorageBackend
   (-get [this not-found]
     (.log js/console "-get")
     not-found)
-  (-commit! [this value]
+  (-commit! [this old-value new-value]
     (.log js/console "-commit!")
-    (.log js/console (clj->js value))
-    value))
+    (.log js/console (clj->js new-value))
+    new-value))
+
+(defn store
+  [atom backend]
+  (let [existing (-get backend ::none)]
+    (if (= ::none existing)
+      (-commit! backend ::none @atom)
+      (reset! atom existing))
+    (doto atom
+      (add-watch ::storage-watch #(-commit! backend %3 %4)))))
 
 (defn rest-storage
   [atom loaded? url]

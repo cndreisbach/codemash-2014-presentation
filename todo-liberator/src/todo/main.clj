@@ -1,5 +1,6 @@
 (ns todo.main
-  (:require [ring.middleware.reload :as reload]
+  (:require [clojure.string :as str]
+            [ring.middleware.reload :as reload]
             [ring.util.response :refer [resource-response]]
             [org.httpkit.server :refer [run-server]]
             [compojure.handler :refer [site]]
@@ -10,13 +11,25 @@
 
 (def stop-server (atom nil))
 (def in-dev? (atom false))
+(defonce used-ids (atom #{}))
+(defonce todo-list (atom []))
+
+(defn new-id
+  []
+  (let [id (str/upper-case (subs (str (java.util.UUID/randomUUID)) 0 5))]
+    (dosync
+     (if (contains? @used-ids id)
+       (recur)
+       (do
+         (swap! used-ids conj id)
+         id)))))
 
 ;; ROUTES
 ;; GET / -> Hoplon app
-;; GET /list - return list
-;; POST /list - update list
-
-(defonce todo-list (atom []))
+;; GET /todo - return list
+;; POST /todo - add todo
+;; GET /todo/:id - return todo
+;; POST /todo/:id - update todo
 
 (defn app
   [req]
@@ -24,19 +37,43 @@
    :headers {"Content-Type" "text/html"}
    :body    "hello HTTP!!!!"})
 
-(defresource list-resource
+(defresource todos-resource
   :allowed-methods [:get :post]
   :available-media-types ["application/edn"]
-  :handle-ok (fn [ctx] @todo-list)
   :post! (fn [ctx]           
-           (let [body (slurp (get-in ctx [:request :body]))
-                 new-list (:value (read-string body))]
-             (println new-list)
-             (reset! todo-list new-list))))
+           (let [body (slurp (get-in ctx [:request :body]))                 
+                 id (new-id)
+                 new-todo (-> (read-string body)
+                              (assoc :id id))]             
+             (swap! todo-list conj (assoc new-todo :id id))
+             {::todo new-todo}))  
+  :handle-ok (fn [ctx] @todo-list)
+  :handle-created (fn [ctx] (::todo ctx)))
+
+(defn delete-todo [list id]
+  (vec (remove #(= (:id %) id) list)))
+
+(defn replace-todo [list id new-todo]
+  (vec (map #(if (= (:id %) id) new-todo %) list)))
+
+(defresource todo-resource [id]
+  :allowed-methods [:get :post]
+  :available-media-types ["application/edn"]
+  :exists? (fn [ctx]
+                (if-let [todo (first (filter #(= (:id %) id) @todo-list))]
+                  {:todo todo}))
+  :handle-ok (fn [{:keys [todo]}]
+               todo)
+  :post! (fn [{:keys [request]}]
+           (let [body (read-string (slurp (:body request)))]
+             (if (:delete body)
+               (swap! todo-list delete-todo id)
+               (swap! todo-list replace-todo id body)))))
 
 (defroutes all-routes
   (GET "/" [] (resource-response "public/index.html"))
-  (ANY "/list" [] list-resource)
+  (ANY "/todo" [] todos-resource)
+  (ANY "/todo/:id" [id] (todo-resource id))
   (route/resources "/")
   (route/not-found "Page not found"))
 
@@ -49,7 +86,8 @@
                   all-routes)]
     (when (not (nil? @stop-server))
       (@stop-server))
-    (reset! stop-server (run-server handler {:port 3000}))))
+    (reset! stop-server (run-server handler {:port 3003}))
+    @stop-server))
 
 (defn -main
   [& args]

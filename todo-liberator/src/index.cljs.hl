@@ -36,7 +36,7 @@
 ;; persisted state cell (AKA: stem cell) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defc  loaded?      false)
-(def   state        (-> (cell []) (rest-storage loaded? "/list")))
+(def   state        (-> (cell []) (rest-storage loaded? "/todo")))
 
 ;; local state cells ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
