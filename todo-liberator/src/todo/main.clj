@@ -40,15 +40,15 @@
 (defresource todos-resource
   :allowed-methods [:get :post]
   :available-media-types ["application/edn"]
-  :post! (fn [ctx]           
-           (let [body (slurp (get-in ctx [:request :body]))                 
-                 id (new-id)
-                 new-todo (-> (read-string body)
-                              (assoc :id id))]             
-             (swap! todo-list conj (assoc new-todo :id id))
-             {::todo new-todo}))  
-  :handle-ok (fn [ctx] @todo-list)
-  :handle-created (fn [ctx] (::todo ctx)))
+  :post! (fn [{:keys [request]}]           
+           (let [body (-> (:body request)
+                          slurp
+                          read-string)
+                 new-todo (assoc body :id (new-id))]             
+             (swap! todo-list conj new-todo)
+             {:todo new-todo}))  
+  :handle-ok (fn [_] @todo-list)
+  :handle-created (fn [{:keys [todo]}] todo))
 
 (defn delete-todo [list id]
   (vec (remove #(= (:id %) id) list)))
@@ -60,8 +60,8 @@
   :allowed-methods [:get :post]
   :available-media-types ["application/edn"]
   :exists? (fn [ctx]
-                (if-let [todo (first (filter #(= (:id %) id) @todo-list))]
-                  {:todo todo}))
+             (if-let [todo (first (filter #(= (:id %) id) @todo-list))]
+               {:todo todo}))
   :handle-ok (fn [{:keys [todo]}]
                todo)
   :post! (fn [{:keys [request]}]
@@ -86,7 +86,7 @@
                   all-routes)]
     (when (not (nil? @stop-server))
       (@stop-server))
-    (reset! stop-server (run-server handler {:port 3003}))
+    (reset! stop-server (run-server handler {:port 3000}))
     @stop-server))
 
 (defn -main

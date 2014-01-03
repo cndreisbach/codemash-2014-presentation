@@ -13,7 +13,6 @@
 
 (defn ws-handler
   [req]
-  ;;
   (with-channel req channel
     (swap! channels conj channel)
     (println "channel opened: " channel)

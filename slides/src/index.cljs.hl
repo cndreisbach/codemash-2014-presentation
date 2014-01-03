@@ -301,8 +301,23 @@
         " to avoid transformation"))
       (notes "Liberator tries to do the smart thing with your response. Liberator has a lot of logic around this and does not treat maps as Ring responses. Depending on the content-type, your map might be rendered as an HTML table, a CSV, or transformed into JSON or XML. If you have a map you have created as a Ring response, make sure to use liberator.representation/ring-response to designate it as a response. This has bit me as a subtle bug in the past."))
      (slide
-      (h2 "Full example")
-      (p "TODO put full example here")))
+      (h2 "Example from todo app")
+      (highlight
+       ;;{{
+       (defresource todos-resource
+         :allowed-methods [:get :post]
+         :available-media-types ["application/edn"]  
+         :handle-ok (fn [_] @todo-list)
+         :post! (fn [{:keys [request]}]           
+                  (let [body (-> (:body request)
+                                 slurp
+                                 read-string)
+                        new-todo (assoc body :id (new-id))]             
+                    (swap! todo-list conj new-todo)
+                    {:todo new-todo}))
+         :handle-created (fn [{:keys [todo]}] todo))
+       ;;}}
+       )))
     (slide
      (slide
       (h1 "HTTP Kit"))
@@ -315,9 +330,66 @@
        "So fast"
        "Also a HTTP client"))
      (slide
-      (h2 "Streaming example"))
+      (h2 "Streaming example")
+      (highlight
+       ;;{{
+       (defn streaming-handler [request]
+         (with-channel request channel
+           (on-close channel (fn [status] (println "channel closed, " status)))
+           (doseq [i (range 1 10)]
+             (send! channel
+                    (str "message #" i)
+                    false) ; false -> don't close after send
+             (Thread/sleep 200))
+           (close channel)))
+       ;;}}
+       ))
+     (slide
+      (h3 "Streaming an OutputStream")
+      (highlight
+       ;;{{
+       (defn ch->outputstream [ch]
+         (proxy [java.io.OutputStream] []
+           (close [] (close ch))
+           (write
+             ([^bytes bs] ;; bytes of byte
+                (send! ch (String. bs) false))
+             ([^bytes bs off len]
+                (send! ch (String. bs off len) false)))))
+
+       (defn ch->writer [ch]
+         (io/writer (ch->outputstream ch)))
+
+       (defn stream-slice-query-json
+         [request response resource]
+         (let [resource (hal/json-representation resource)]        
+           (with-channel request ch
+             (send! ch response false)
+             (with-open [writer (ch->writer ch)]
+               (json/generate-stream resource writer))
+             (close ch))
+           response))
+       ;;}}
+       ))
      (slide
       (h2 "WebSocket example")
+      (highlight
+       ;;{{
+       (defn ws-handler [request]
+         (with-channel request channel
+           (swap! channels conj channel)
+           (println "channel opened: " channel)
+           (on-close channel
+                     (fn [status]
+                       (swap! channels disj channel)
+                       (println "channel closed: " channel " - " status)))
+           (on-receive channel (fn [data]
+                                 (println "data received: " data)
+                                 (doseq [chan (disj @channels channel)]
+                                   (println "sending data: " channel " - " data)
+                                   (send! chan data))))))
+       ;;}}
+       )
       (notes "Note the unified API, allowing us to degrade to long polling")))
     (slide
      (h1 "Putting it all together"))
