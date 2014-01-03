@@ -1,7 +1,7 @@
 (ns todo.main
   (:require [clojure.string :as str]
             [ring.middleware.reload :as reload]
-            [ring.util.response :refer [resource-response]]
+            [ring.util.response :refer [response content-type resource-response]]
             [org.httpkit.server :refer [run-server with-channel on-close on-receive send!]]
             [compojure.handler :refer [site]]
             [compojure.core :refer [defroutes GET POST ANY]]
@@ -10,6 +10,20 @@
 (def stop-server (atom nil))
 (def in-dev? (atom false))
 (def channels (atom #{}))
+(def todo-list (atom []))
+
+(defn todo-handler
+  [req]
+  (-> (str @todo-list)
+      (response)
+      (content-type "application/edn")))
+
+(defn handle-message
+  [msg]
+  (let [msg (read-string msg)]
+    (cond
+     (= (:type msg) "new") (swap!  (:todo data))
+     :else (.log js/console (clj->js data)))))
 
 (defn ws-handler
   [req]
@@ -28,6 +42,7 @@
 
 (defroutes all-routes
   (GET "/" [] (resource-response "public/index.html"))
+  (GET "/todos" [] todo-handler)
   (GET "/ws" [] ws-handler)
   (route/resources "/")
   (route/not-found "Page not found"))

@@ -23,7 +23,7 @@
                  [ring/ring-core "1.1.8"]]
  :require-tasks #{[tailrecursion.boot.task   :refer :all]
                   [tailrecursion.hoplon.boot :refer :all]}
- :src-paths     #{"src"}
+ :src-paths     #{"src/clj" "src/cljs" "src/crossover-cljs"}
  :src-static    #{"resources/assets"}
  :public        "resources/public"
  :tasks         {:dev {:doc "Build Hoplon without prerendering."
