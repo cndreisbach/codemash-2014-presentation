@@ -48,7 +48,7 @@
       (notes "Clojure just has a different approach: libraries that work well together and that you can mix and match. Does this make getting started harder? Yes, because you have to pick your tools. But once you start, Clojure web development can be a blast."))
      (slide
       (h2 "The Ring Cycle")
-      (p "Insert image of request->response with Ring")
+      (img :src "img/ring.png")
       (notes "Clojure provides good facilities for creating web apps with Ring and Compojure"))
      (slide
       (h2 "Next-Level Web Apps")
@@ -74,7 +74,7 @@
        (li "ClojureScript can be represented as HTML"))
       (notes "One of the ideas that led to Hoplon is the idea that HTML is a Lisp. In Hoplon, you can create pages using either HTML or ClojureScript."))
      (slide
-      (h2 "Hoplon with HTML syntax")
+      (h3 "Hoplon with HTML syntax")
       (highlight
 ;;{{
 <script type="text/hoplon">
@@ -99,7 +99,7 @@
 ;;}}       
        ))
      (slide
-      (h2 "Hoplon with CLJS syntax")
+      (h3 "Hoplon with CLJS syntax")
       (highlight
 ;;{{
 (page "index.html")
@@ -186,8 +186,8 @@
        (li "Resources are Ring handlers"))
       (notes "Liberator implements RFC 2616, the HTTP 1.1 spec. It heelps create REST resources. At their core, these resources are decision trees."))
      (slide
-      (h2 "Simple Liberator decision tree")
-      (p "TODO add simple tree"))
+      (h3 "Simple Liberator decision tree")
+      (img :src "img/simple-liberator.png"))
      (slide
       (h2 "Simple Liberator example")
       (highlight
@@ -250,8 +250,8 @@
        )
       (notes "Instead of returning a map from a decision function, we can return a length-2 vector, where the first element is whether the decision passed and the second is the map to update the context with."))
      (slide
-      (h2 "More complex decision tree")
-      (p "TODO insert more complex decision tree"))
+      (h3 "More complex decision tree")
+      (img :src "img/complex-liberator.png"))
      (slide
       (h2 "Liberator decisions")
       (quicklist
