@@ -12,6 +12,56 @@
     (t "CodeMash 2014"))
    (slide
     (slide
+     :title "The Big Secret"
+     (ul
+      (li "Web development is functional")
+      (li "Clojure is great at web development"))
+     (notes "A request comes in, a transformation is performed, a response is returned. Web development lends itself to functional programming well. Many people new to Clojure think that Clojure isn't the best language for web development because it doesn't have a comprehensive framework like Play or Ruby on Rails."))
+    (slide
+     :title "The Ring Cycle"
+     (img :src "img/ring.png")
+     (notes "Clojure provides good facilities for creating web apps with Ring"))
+    (slide
+     (h2 "A simple Ring app")
+     (highlight
+      ;;{{
+      (ns request-echo
+        (:require [clojure.pprint :refer [pprint]]))
+      
+      (defn handler
+        "Return the request as HTML."
+        ;; A request comes in the handler.  
+        [request]
+
+        ;; The handler returns a response map.
+        {:status 200
+         :headers {"Content-Type" "text/html"}
+         :body (str "<h1>Request Echo</h1><pre>"
+                    (with-out-str (pprint request))
+                    "</pre>")})
+      ;;}}
+      ))
+    (slide
+     (h2 "Libraries over frameworks")
+     (ul
+      (li "Routing - Compojure")
+      (li "Templating - Hiccup or Selmer")
+      (li "SQL - Korma")
+      (li "i18n and l10n - Tower")
+      (li "Asset pipeline - Optimus or Stefon")
+      (li (strong "Luminus") (text " wraps many of these up in a set of Leiningen tasks.")))
+     (notes "Clojure just has a different approach: libraries that work well together and that you can mix and match. Does this make getting started harder? Yes, because you have to pick your tools. But once you start, Clojure web development can be a blast."))     
+    (slide
+     (h2 "Next-Level Web Apps")
+     (ul
+      (li "Single-page apps")
+      (li "APIs")
+      (li "WebSockets"))
+     (notes
+      (t "When things get more complicated, though, how can Clojure help us?")
+      (t "I'm going to show three libraries that have helped me greatly"))))   
+   (slide
+    (slide
      (h1 "Hoplon"))
     (slide
      :title "What is Hoplon?"
