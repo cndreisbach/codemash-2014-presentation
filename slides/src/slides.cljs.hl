@@ -1,22 +1,45 @@
-(ns slides)
+(ns slides
+  (:refer-clojure :exclude [list])
+  (:require-macros [slideshow :as slideshow]))
 
-(def slide section)
+;; TODO add defmacro for slideshow
 
 (defelem markdown-slide
   [attrs children]
   (section (merge attrs {:data-markdown ""})
            (script :type "text/template" children)))
 
+(defn is-text?
+  [children]
+  (and (= (count children) 1)
+       (not (= (.-nodeType (first children)) 1))))
+
+(defelem slide-title
+  [attrs children]
+  (if (is-text? children)
+    (add-attributes! 
+     (h2 (first children))
+     {:class "title"})
+    children))
+
 (defelem slide
-  [{:keys [markdown] :as attrs} children]
-  (if markdown
-    (markdown-slide (dissoc attrs :markdown) children)
-    (section attrs children)))
+  [{:keys [markdown title] :as attrs} children]
+  (let [children (if title
+                   (concat [(slide-title title)] children)
+                   children)
+        attrs (dissoc attrs :markdown :title)]
+    (if markdown
+      (markdown-slide attrs children)
+      (section attrs children))))
 
 (defelem slides
   [{:keys [theme] :as attrs} children]
   (div (-> attrs (dissoc :theme) (merge {:class "reveal"}))
        (div :class "slides" children)))
+
+(def t div)
+(def list ul)
+(def item li)
 
 (defelem notes
   [attrs children]

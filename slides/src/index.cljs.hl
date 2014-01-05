@@ -1,397 +1,402 @@
 (page "index.html"
-      (:require [slides :as s :refer [slides slide notes highlight]]))
-
-(add-initfn!
- (fn []   
-   (.initialize
-    js/Reveal
-    (clj->js {:history true
-              :dependencies
-              [{:src "reveal.js/plugin/markdown/marked.js"}
-               {:src "reveal.js/plugin/markdown/markdown.js"}
-               {:src "reveal.js/plugin/highlight/highlight.js"
-                :async true
-                :callback (fn [] (.initHighlightingOnLoad js/hljs))}
-               {:src "reveal.js/plugin/notes/notes.js"
-                :async true}]}))))
+      (:refer-clojure :exclude [list])
+      (:require-macros [slideshow :as slideshow])
+      (:require [slides :as s :refer [slides slide notes highlight t list item]]))
 
 (defn quicklist
   [& things]
-  (ul
+  (list
    (loop-tpl :bindings [x things]
-             (li @x))))
+             (item @x))))
 
-(html
-  (head
-   (link :rel "stylesheet"
-         :href "reveal.js/css/reveal.css")
-   (link :rel "stylesheet"
-         :href "reveal.js/css/theme/sky.css"
-         :id "theme")
-   (link :rel "stylesheet"
-         :href "reveal.js/plugin/highlight/github.min.css"))
-  (body
-   (slides
-    (slide
-     (h1 "Secrets of Clojure Web Development")
-     (p "Clinton N. Dreisbach")
-     (p "CodeMash 2014"))
-    (slide
-     (slide
-      (h2 "The Big Secret")
-      (ul
-       (li "Web development is functional")
-       (li "Clojure is great at web development"))
-      (notes "A request comes in, a transformation is performed, a response is returned. Web development lends itself to functional programming well. Many people new to Clojure think that Clojure isn't the best language for web development because it doesn't have a comprehensive framework like Play or Ruby on Rails."))
-     (slide
-      (h2 "Libraries over frameworks")
-      (notes "Clojure just has a different approach: libraries that work well together and that you can mix and match. Does this make getting started harder? Yes, because you have to pick your tools. But once you start, Clojure web development can be a blast."))
-     (slide
-      (h2 "The Ring Cycle")
-      (img :src "img/ring.png")
-      (notes "Clojure provides good facilities for creating web apps with Ring and Compojure"))
-     (slide
-      (h2 "Next-Level Web Apps")
-      (ul
-       (li "Single-page apps")
-       (li "APIs")
-       (li "WebSockets"))
-      (notes
-       (p "When things get more complicated, though, how can Clojure help us?")
-       (p "I'm going to show three libraries that have helped me greatly"))))
-    (slide
-     (slide
-      (h1 "Hoplon"))
-     (slide
-      (h2 "What is Hoplon?")
-      (p "A ClojureScript client-side framework")
-      (notes
-       "At its core, Hoplon is a ClojureScript compiler that generates HTML pages and JavaScript. The HTML pages are a harness for the JS, which renders the pages and sets up their interactions. Hoplon is used for making powerful one-page apps."))
-     (slide
-      (h2 "HTML as s-expressions")
-      (ul
-       (li "HTML elements can be represented as ClojureScript")
-       (li "ClojureScript can be represented as HTML"))
-      (notes "One of the ideas that led to Hoplon is the idea that HTML is a Lisp. In Hoplon, you can create pages using either HTML or ClojureScript."))
-     (slide
-      (h3 "Hoplon with HTML syntax")
-      (highlight
-;;{{
-<script type="text/hoplon">
-  (page "index.html")
+(slideshow/slideshow
+ (slide
+  (h1 "Secrets of Clojure Web Development")
+  (t "Clinton N. Dreisbach")
+  (t "CodeMash 2014"))
+ (slide
+  (slide
+   :title "The Big Secret"
+   (list
+    (item "Web development is functional")
+    (item "Clojure is great at web development"))
+   (notes "A request comes in, a transformation is performed, a response is returned. Web development lends itself to functional programming well. Many people new to Clojure think that Clojure isn't the best language for web development because it doesn't have a comprehensive framework like Play or Ruby on Rails."))
+  (slide
+   :title "The Ring Cycle"
+   (img :src "img/ring.png")
+   (notes "Clojure provides good facilities for creating web apps with Ring"))
+  (slide
+   (h2 "A simple Ring app")
+   (highlight
+    ;;{{
+    (ns request-echo
+      (:require [clojure.pprint :refer [pprint]]))
+    
+    (defn handler
+      "Return the request as HTML."
+      ;; A request comes in the handler.  
+      [request]
 
-  (defn duo [x y]
-    (ul (li x)
-        (li y)))
-</script>
-       
-<html>
-  <body>
+      ;; The handler returns a response map.
+      {:status 200
+       :headers {"Content-Type" "text/html"}
+       :body (str "<h1>Request Echo</h1><pre>"
+                  (with-out-str (pprint request))
+                  "</pre>")})
+    ;;}}
+    ))
+  (slide
+   (h2 "Libraries over frameworks")
+   (list
+    (item "Routing - Compojure")
+    (item "Templating - Hiccup or Selmer")
+    (item "SQL - Korma")
+    (item "i18n and l10n - Tower")
+    (item "Asset pipeline - Optimus or Stefon")
+    (item (strong "Luminus") (text " wraps many of these up in a set of Leiningen tasks.")))
+   (notes "Clojure just has a different approach: libraries that work well together and that you can mix and match. Does this make getting started harder? Yes, because you have to pick your tools. But once you start, Clojure web development can be a blast."))     
+  (slide
+   (h2 "Next-Level Web Apps")
+   (list
+    (item "Single-page apps")
+    (item "APIs")
+    (item "WebSockets"))
+   (notes
+    (t "When things get more complicated, though, how can Clojure help us?")
+    (t "I'm going to show three libraries that have helped me greatly"))))
+ (slide
+  (slide
+   (h1 "Hoplon"))
+  (slide
+   (h2 "What is Hoplon?")
+   (t "A ClojureScript client-side framework")
+   (notes
+    "At its core, Hoplon is a ClojureScript compiler that generates HTML pages and JavaScript. The HTML pages are a harness for the JS, which renders the pages and sets up their interactions. Hoplon is used for making powerful one-page apps."))
+  (slide
+   (h2 "HTML as s-expressions")
+   (list
+    (item "HTML elements can be represented as ClojureScript")
+    (item "ClojureScript can be represented as HTML"))
+   (notes "One of the ideas that led to Hoplon is the idea that HTML is a Lisp. In Hoplon, you can create pages using either HTML or ClojureScript."))
+  (slide
+   (h3 "Hoplon with HTML syntax")
+   (highlight
+    ;;{{
+    <script type="text/hoplon">
+    (page "index.html")
+
+    (defn duo [x y]
+      (ul (li x)
+          (li y)))
+    </script>
+    
+    <html>
+    <body>
     <h1>Hello, Hoplon</h1>
 
     <!-- an HTML syntax call to the duo function -->
     <duo>
-      <div>first thing</div>
-      <div>second thing</div>
+    <div>first thing</div>
+    <div>second thing</div>
     </duo>
-  </body>
-</html>
-;;}}       
-       ))
-     (slide
-      (h3 "Hoplon with CLJS syntax")
-      (highlight
-;;{{
-(page "index.html")
+    </body>
+    </html>
+    ;;}}       
+    ))
+  (slide
+   (h3 "Hoplon with CLJS syntax")
+   (highlight
+    ;;{{
+    (page "index.html")
 
-(defn duo [x y]
-  (ul (li x)
-      (li y)))
+    (defn duo [x y]
+      (ul (li x)
+          (li y)))
 
-(html
- (body
-  (h1 "Hello, Hoplon")
-  (duo "first thing" "second thing")))
-;;}}       
-       )
-      (notes "We are going to use the CLJS syntax for the rest of the presentation, but the HTML syntax can do anything the CLJS syntax can."))
-     (slide
-      (h2 "Hoplon as spreadsheet")
-      (ul
-       (li "Hoplon simplifies state by using cells")
-       (li "Cells work just like cells in a spreadsheet")
-       (li "Two kinds of cells: input and formula"))
-      (notes "Remember in a spreadsheet where you could have a cell A1 and a cell B1 and then set C1 to the quotient of them? And when you updated A1 or B1, C1 updated? Hoplon cells work just like this, but instead of referencing them by letter and number, they are referenced like any other Clojure value. They are a Clojure reference type like atoms and the same functions work on them, but they automatically propogate updates from input cells to formula cells."))
-     (slide
-      (h2 "Hoplon cell example")
-      (highlight
-;;{{
-(def state       (cell []))
-(def completed   (cell= (filter :completed state)))
-(def active      (cell= (remove :completed state)))
-(def plural-item (cell= (pluralize "item" (count active))))
+    (html
+     (body
+      (h1 "Hello, Hoplon")
+      (duo "first thing" "second thing")))
+    ;;}}       
+    )
+   (notes "We are going to use the CLJS syntax for the rest of the presentation, but the HTML syntax can do anything the CLJS syntax can."))
+  (slide
+   (h2 "Hoplon as spreadsheet")
+   (list
+    (item "Hoplon simplifies state by using cells")
+    (item "Cells work just like cells in a spreadsheet")
+    (item "Two kinds of cells: input and formula"))
+   (notes "Remember in a spreadsheet where you could have a cell A1 and a cell B1 and then set C1 to the quotient of them? And when you updated A1 or B1, C1 updated? Hoplon cells work just like this, but instead of referencing them by letter and number, they are referenced like any other Clojure value. They are a Clojure reference type like atoms and the same functions work on them, but they automatically propogate updates from input cells to formula cells."))
+  (slide
+   (h2 "Hoplon cell example")
+   (highlight
+    ;;{{
+    (def state       (cell []))
+    (def completed   (cell= (filter :completed state)))
+    (def active      (cell= (remove :completed state)))
+    (def plural-item (cell= (pluralize "item" (count active))))
 
-;; Later in the page
-(span :id "todo-count"
-      (strong (text "~(count active) "))
-      (span (text " ~{plural-item} left")))
-;;}}       
-       )
-      (notes "You can see in the first four lines here how we set up an input cell and three formula cells. When the value in state is changed, the three formula cells are automatically updated. The string interpolation below binds these text nodes to the values of the formula cells. The change is propogated into the text cells."))
-     (slide
-      (h2 "Hoplon and the DOM")
-      (p "Hoplon uses the DOM for input and output. Examples:")
-      (ul
-       (li "on-click")
-       (li "on-change"))
-      (ul
-       (li "do-value")
-       (li "do-class"))
-      (notes
-       "Hoplon uses the DOM for input and output. All user input is done through DOM events like on-click and on-change. Code is attached to these events, like you're used to from jQuery or other libraries. Output is done by manipulating the properties of DOM nodes using special do- attributes. The value of these attributes is always a formula cell."))
-     (slide
-      (h2 "Hoplon DOM example")
-      (highlight
-;;{{
-(input
- :id "new-todo"
- :type "text"
- :do-focus loaded?
- :do-attr (cell= {:placeholder (if loaded?
-                                 "What needs to be done?"
-                                 "Loading...")}) 
- :on-focusout #(do! (by-id :new-todo) :value ""))
-;;}}       
-       )
-      (notes "You can see in this input element an example of do- and on- parameters. Starting with :do-focus, you can see that it's looking at the value of the loaded? cell. If the loaded? cell contains true, then focus on this input. This means that this input will gain focus when loaded? becomes true. :do-attr sets the placeholder attribute on this input based on the current loading state. It uses an anonymous cell so that this will update. We didn't have to use an anonymous cell with :do-focus because loaded? is a cell. Lastly, look at :on-focusout. The do! multimethod allows us to programmatically do the same thing we do with the do- attributes: update a DOM element."))
-     (slide
-      (h2 "Full example of Hoplon")
-      (a :href "https://github.com/cndreisbach/codemash-2014-presentation/blob/master/todo-hoplon/src/index.cljs.hl"
-         :target "_blank"
-         "Code on GitHub"))
-     (slide
-      (h2 "Hoplon compiles to static files")
-      (ul
-       (li "They can be used anywhere")
-       (li "And with any backend"))))
-    (slide
-     (slide
-      (h1 "Liberator"))
-     (slide
-      (h2 "REST APIs with Liberator")
-      (ul
-       (li "Liberator provides resources")
-       (li "Resources are decision trees")
-       (li "Resources provide a REST interface")
-       (li "Resources are Ring handlers"))
-      (notes "Liberator implements RFC 2616, the HTTP 1.1 spec. It heelps create REST resources. At their core, these resources are decision trees."))
-     (slide
-      (h3 "Simple Liberator decision tree")
-      (img :src "img/simple-liberator.png"))
-     (slide
-      (h2 "Simple Liberator example")
-      (highlight
-;;{{
-(require '[liberator.core :refer [defresource]])
+    ;; Later in the page
+    (span :id "todo-count"
+          (strong (text "~(count active) "))
+          (span (text " ~{plural-item} left")))
+    ;;}}       
+    )
+   (notes "You can see in the first four lines here how we set up an input cell and three formula cells. When the value in state is changed, the three formula cells are automatically updated. The string interpolation below binds these text nodes to the values of the formula cells. The change is propogated into the text cells."))
+  (slide
+   (h2 "Hoplon and the DOM")
+   (p "Hoplon uses the DOM for input and output. Examples:")
+   (list
+    (item "on-click")
+    (item "on-change"))
+   (list
+    (item "do-value")
+    (item "do-class"))
+   (notes
+    "Hoplon uses the DOM for input and output. All user input is done through DOM events like on-click and on-change. Code is attached to these events, like you're used to from jQuery or other libraries. Output is done by manipulating the properties of DOM nodes using special do- attributes. The value of these attributes is always a formula cell."))
+  (slide
+   (h2 "Hoplon DOM example")
+   (highlight
+    ;;{{
+    (input
+     :id "new-todo"
+     :type "text"
+     :do-focus loaded?
+     :do-attr (cell= {:placeholder (if loaded?
+                                     "What needs to be done?"
+                                     "Loading...")}) 
+     :on-focusout #(do! (by-id :new-todo) :value ""))
+    ;;}}       
+    )
+   (notes "You can see in this input element an example of do- and on- parameters. Starting with :do-focus, you can see that it's looking at the value of the loaded? cell. If the loaded? cell contains true, then focus on this input. This means that this input will gain focus when loaded? becomes true. :do-attr sets the placeholder attribute on this input based on the current loading state. It uses an anonymous cell so that this will update. We didn't have to use an anonymous cell with :do-focus because loaded? is a cell. Lastly, look at :on-focusout. The do! multimethod allows us to programmatically do the same thing we do with the do- attributes: update a DOM element."))
+  (slide
+   (h2 "Full example of Hoplon")
+   (a :href "https://github.com/cndreisbach/codemash-2014-presentation/blob/master/todo-hoplon/src/index.cljs.hl"
+      :target "_blank"
+      "Code on GitHub"))
+  (slide
+   (h2 "Hoplon compiles to static files")
+   (list
+    (item "They can be used anywhere")
+    (item "And with any backend"))))
+ (slide
+  (slide
+   (h1 "Liberator"))
+  (slide
+   (h2 "REST APIs with Liberator")
+   (list
+    (item "Liberator provides resources")
+    (item "Resources are decision trees")
+    (item "Resources provide a REST interface")
+    (item "Resources are Ring handlers"))
+   (notes "Liberator implements RFC 2616, the HTTP 1.1 spec. It heelps create REST resources. At their core, these resources are decision trees."))
+  (slide
+   (h3 "Simple Liberator decision tree")
+   (img :src "img/simple-liberator.png"))
+  (slide
+   (h2 "Simple Liberator example")
+   (highlight
+    ;;{{
+    (require '[liberator.core :refer [defresource]])
 
-(defresource hello
-  :exists? (fn [ctx]
-             (let [lang (get-in ctx [:request :params :lang])]
-               (contains? #{"en" "es"} lang)))
-  :handle-ok (fn [ctx]
-               (let [lang (get-in ctx [:request :params :lang])]
-                 (if (= lang "es")
-                   "Hola mundo!"
-                   "Hello world!")))
-  :handle-not-found (fn [ctx]
-                      "Language not found."))       
-;;}}
-       )
-      (notes "Look at the exists? function. It takes a context, which all functions in a resource should take. The context has the request in it, as well as the response. In this resource, we look to see if the language parameter is equal to 'en' or 'es' and if so, then handle-ok is called. If not, handle-not-found is called. We did not have to define handle-ok and handle-not-found: Liberator provides default functions for all decisions and handlers. There's repeated code here, though, to look up the language, and I probably should have looked it up a third time in :handle-not-found. Let's see how we can fix that."))
-     (slide
-      (h2 "Liberator context")
-      (highlight
-;;{{
-(require '[liberator.core :refer [defresource]])
+    (defresource hello
+      :exists? (fn [ctx]
+                 (let [lang (get-in ctx [:request :params :lang])]
+                   (contains? #{"en" "es"} lang)))
+      :handle-ok (fn [ctx]
+                   (let [lang (get-in ctx [:request :params :lang])]
+                     (if (= lang "es")
+                       "Hola mundo!"
+                       "Hello world!")))
+      :handle-not-found (fn [ctx]
+                          "Language not found."))       
+    ;;}}
+    )
+   (notes "Look at the exists? function. It takes a context, which all functions in a resource should take. The context has the request in it, as well as the response. In this resource, we look to see if the language parameter is equal to 'en' or 'es' and if so, then handle-ok is called. If not, handle-not-found is called. We did not have to define handle-ok and handle-not-found: Liberator provides default functions for all decisions and handlers. There's repeated code here, though, to look up the language, and I probably should have looked it up a third time in :handle-not-found. Let's see how we can fix that."))
+  (slide
+   (h2 "Liberator context")
+   (highlight
+    ;;{{
+    (require '[liberator.core :refer [defresource]])
 
-(defresource hello
-  :exists? (fn [ctx]
-             (let [lang (get-in ctx [:request :params :lang])]
-               (if (contains? #{"en" "es"} lang)
-                 {:lang lang})))
-  :handle-ok (fn [ctx]
-               (let [lang (:lang ctx)]
-                 (if (= lang "es")
-                   "Hola mundo!"
-                   "Hello world!")))
-  :handle-not-found (fn [ctx]
-                      "Language not found."))       
-;;}}       
-       )
-      (notes "See here how we returned a map from exists?? Any time we return a map, it is merged into the context map and available elsewhere. We could have even used destructuring to pull lang out, but I didn't want to confuse the issue. That's more idiomatic of my usage, though. It looks like we can't get lang so easily in handle-not-found, but Liberator does provide a way."))
-     (slide
-      (h2 "Liberator context on decision failure")
-      (highlight
-;;{{
-(require '[liberator.core :refer [defresource]])
+    (defresource hello
+      :exists? (fn [ctx]
+                 (let [lang (get-in ctx [:request :params :lang])]
+                   (if (contains? #{"en" "es"} lang)
+                     {:lang lang})))
+      :handle-ok (fn [ctx]
+                   (let [lang (:lang ctx)]
+                     (if (= lang "es")
+                       "Hola mundo!"
+                       "Hello world!")))
+      :handle-not-found (fn [ctx]
+                          "Language not found."))       
+    ;;}}       
+    )
+   (notes "See here how we returned a map from exists?? Any time we return a map, it is merged into the context map and available elsewhere. We could have even used destructuring to pull lang out, but I didn't want to confuse the issue. That's more idiomatic of my usage, though. It looks like we can't get lang so easily in handle-not-found, but Liberator does provide a way."))
+  (slide
+   (h2 "Liberator context on decision failure")
+   (highlight
+    ;;{{
+    (require '[liberator.core :refer [defresource]])
 
-(defresource hello
-  :exists? (fn [{:keys req}]
-             (let [lang (get-in req [:params :lang])]
-               ;; Return a vector instead of a map.
-               [(contains? #{"en" "es"} lang) {:lang lang}]))
-  :handle-ok (fn [{:keys [lang]}]
-               (if (= lang "es")
-                 "Hola mundo!"
-                 "Hello world!"))
-  :handle-not-found (fn [{:keys [lang]}]
-                      (str "Language " lang " not found.")))
-;;}}       
-       )
-      (notes "Instead of returning a map from a decision function, we can return a length-2 vector, where the first element is whether the decision passed and the second is the map to update the context with."))
-     (slide
-      (h3 "More complex decision tree")
-      (img :src "img/complex-liberator.png"))
-     (slide
-      (h2 "Liberator decisions")
-      (quicklist
-       "allowed?"
-       "authorized?"
-       "exists?"
-       "existed?"
-       "known-content-type?"
-       "method-allowed?"
-       "moved-permanently?"
-       "moved-temporarily?")
-      (notes "These are just a few of the decisions in Liberator. The full list is very long, but luckily all of them have reasonable defaults, so you only need to define the ones pertaining to your resource."))
-     (slide
-      (h2 "Liberator handlers")
-      (quicklist
-       "handle-ok"
-       "handle-created"
-       "handle-forbidden"
-       "handle-not-found"
-       "handle-not-implemented")
-      (notes "Like with the decisions, these are only a few of the handlers in Liberator."))
-     (slide
-      (h2 "Liberator actions")
-      (quicklist "post!" "put!" "delete!")
-      (notes "These are all the actions in Liberator. I didn't mention actions before, but they are what they look like: functions for dealing with requests that do not use the GET method, and which likely have side-effects. These do continue on to handlers. For example, post! checks a decision function, new?, after it completes successfully. If new? is true, handle-created is called."))
-     (slide
-      (h2 "Liberator's decision graph")
-      (a :href "liberator-decision-graph.svg"
-         :target "_blank"
-         "Link to decision graph"))
-     (slide
-      (h2 "Liberator representations")
-      (ul
-       (li "Handlers return representations")
-       (li
-        (code "liberator.representation/Representation")
-        " is a protocol")
-       (li "This protocol defines "
-           (code "as-response")
-           ", which returns a Ring response")
-       (li
-        (strong "Very tricky: ")
-        "maps extend this protocol")
-       (li
-        "Use "
-        (code "liberator.representation/ring-response")
-        " to avoid transformation"))
-      (notes "Liberator tries to do the smart thing with your response. Liberator has a lot of logic around this and does not treat maps as Ring responses. Depending on the content-type, your map might be rendered as an HTML table, a CSV, or transformed into JSON or XML. If you have a map you have created as a Ring response, make sure to use liberator.representation/ring-response to designate it as a response. This has bit me as a subtle bug in the past."))
-     (slide
-      (h2 "Example from todo app")
-      (highlight
-       ;;{{
-       (defresource todos-resource
-         :allowed-methods [:get :post]
-         :available-media-types ["application/edn"]  
-         :handle-ok (fn [_] @todo-list)
-         :post! (fn [{:keys [request]}]           
-                  (let [body (-> (:body request)
-                                 slurp
-                                 read-string)
-                        new-todo (assoc body :id (new-id))]             
-                    (swap! todo-list conj new-todo)
-                    {:todo new-todo}))
-         :handle-created (fn [{:keys [todo]}] todo))
-       ;;}}
-       )))
-    (slide
-     (slide
-      (h1 "HTTP Kit"))
-     (slide
-      (h2 "A Clojure web server")
-      (quicklist
-       "Supports WebSockets and long polling"
-       "Supports HTTP streaming"
-       "Compatible with Ring"
-       "So fast"
-       "Also a HTTP client"))
-     (slide
-      (h2 "Streaming example")
-      (highlight
-       ;;{{
-       (defn streaming-handler [request]
-         (with-channel request channel
-           (on-close channel (fn [status] (println "channel closed, " status)))
-           (doseq [i (range 1 10)]
-             (send! channel
-                    (str "message #" i)
-                    false) ; false -> don't close after send
-             (Thread/sleep 200))
-           (close channel)))
-       ;;}}
-       ))
-     (slide
-      (h3 "Streaming an OutputStream")
-      (highlight
-       ;;{{
-       (defn ch->outputstream [ch]
-         (proxy [java.io.OutputStream] []
-           (close [] (close ch))
-           (write
-             ([^bytes bs] ;; bytes of byte
-                (send! ch (String. bs) false))
-             ([^bytes bs off len]
-                (send! ch (String. bs off len) false)))))
+    (defresource hello
+      :exists? (fn [{:keys req}]
+                 (let [lang (get-in req [:params :lang])]
+                   ;; Return a vector instead of a map.
+                   [(contains? #{"en" "es"} lang) {:lang lang}]))
+      :handle-ok (fn [{:keys [lang]}]
+                   (if (= lang "es")
+                     "Hola mundo!"
+                     "Hello world!"))
+      :handle-not-found (fn [{:keys [lang]}]
+                          (str "Language " lang " not found.")))
+    ;;}}       
+    )
+   (notes "Instead of returning a map from a decision function, we can return a length-2 vector, where the first element is whether the decision passed and the second is the map to update the context with."))
+  (slide
+   (h3 "More complex decision tree")
+   (img :src "img/complex-liberator.png"))
+  (slide
+   (h2 "Liberator decisions")
+   (quicklist
+    "allowed?"
+    "authorized?"
+    "exists?"
+    "existed?"
+    "known-content-type?"
+    "method-allowed?"
+    "moved-permanently?"
+    "moved-temporarily?")
+   (notes "These are just a few of the decisions in Liberator. The full list is very long, but luckily all of them have reasonable defaults, so you only need to define the ones pertaining to your resource."))
+  (slide
+   (h2 "Liberator handlers")
+   (quicklist
+    "handle-ok"
+    "handle-created"
+    "handle-forbidden"
+    "handle-not-found"
+    "handle-not-implemented")
+   (notes "Like with the decisions, these are only a few of the handlers in Liberator."))
+  (slide
+   (h2 "Liberator actions")
+   (quicklist "post!" "put!" "delete!")
+   (notes "These are all the actions in Liberator. I didn't mention actions before, but they are what they look like: functions for dealing with requests that do not use the GET method, and which likely have side-effects. These do continue on to handlers. For example, post! checks a decision function, new?, after it completes successfully. If new? is true, handle-created is called."))
+  (slide
+   (h2 "Liberator's decision graph")
+   (a :href "liberator-decision-graph.svg"
+      :target "_blank"
+      "Link to decision graph"))
+  (slide
+   (h2 "Liberator representations")
+   (list
+    (item "Handlers return representations")
+    (item
+     (code "liberator.representation/Representation")
+     " is a protocol")
+    (item "This protocol defines "
+          (code "as-response")
+          ", which returns a Ring response")
+    (item
+     (strong "Very tricky: ")
+     "maps extend this protocol")
+    (item
+     "Use "
+     (code "liberator.representation/ring-response")
+     " to avoid transformation"))
+   (notes "Liberator tries to do the smart thing with your response. Liberator has a lot of logic around this and does not treat maps as Ring responses. Depending on the content-type, your map might be rendered as an HTML table, a CSV, or transformed into JSON or XML. If you have a map you have created as a Ring response, make sure to use liberator.representation/ring-response to designate it as a response. This has bit me as a subtle bug in the past."))
+  (slide
+   (h2 "Example from todo app")
+   (highlight
+    ;;{{
+    (defresource todos-resource
+      :allowed-methods [:get :post]
+      :available-media-types ["application/edn"]  
+      :handle-ok (fn [_] @todo-list)
+      :post! (fn [{:keys [request]}]           
+               (let [body (-> (:body request)
+                              slurp
+                              read-string)
+                     new-todo (assoc body :id (new-id))]             
+                 (swap! todo-list conj new-todo)
+                 {:todo new-todo}))
+      :handle-created (fn [{:keys [todo]}] todo))
+    ;;}}
+    )))
+ (slide
+  (slide
+   (h1 "HTTP Kit"))
+  (slide
+   (h2 "A Clojure web server")
+   (quicklist
+    "Supports WebSockets and long polling"
+    "Supports HTTP streaming"
+    "Compatible with Ring"
+    "So fast"
+    "Also a HTTP client"))
+  (slide
+   (h2 "Streaming example")
+   (highlight
+    ;;{{
+    (defn streaming-handler [request]
+      (with-channel request channel
+        (on-close channel (fn [status] (println "channel closed, " status)))
+        (doseq [i (range 1 10)]
+          (send! channel
+                 (str "message #" i)
+                 false) ; false -> don't close after send
+          (Thread/sleep 200))
+        (close channel)))
+    ;;}}
+    ))
+  (slide
+   (h3 "Streaming an OutputStream")
+   (highlight
+    ;;{{
+    (defn ch->outputstream [ch]
+      (proxy [java.io.OutputStream] []
+        (close [] (close ch))
+        (write
+          ([^bytes bs] ;; bytes of byte
+             (send! ch (String. bs) false))
+          ([^bytes bs off len]
+             (send! ch (String. bs off len) false)))))
 
-       (defn ch->writer [ch]
-         (io/writer (ch->outputstream ch)))
+    (defn ch->writer [ch]
+      (io/writer (ch->outputstream ch)))
 
-       (defn stream-slice-query-json
-         [request response resource]
-         (let [resource (hal/json-representation resource)]        
-           (with-channel request ch
-             (send! ch response false)
-             (with-open [writer (ch->writer ch)]
-               (json/generate-stream resource writer))
-             (close ch))
-           response))
-       ;;}}
-       ))
-     (slide
-      (h2 "WebSocket example")
-      (highlight
-       ;;{{
-       (defn ws-handler [request]
-         (with-channel request channel
-           (swap! channels conj channel)
-           (println "channel opened: " channel)
-           (on-close channel
-                     (fn [status]
-                       (swap! channels disj channel)
-                       (println "channel closed: " channel " - " status)))
-           (on-receive channel (fn [data]
-                                 (println "data received: " data)
-                                 (doseq [chan (disj @channels channel)]
-                                   (println "sending data: " channel " - " data)
-                                   (send! chan data))))))
-       ;;}}
-       )
-      (notes "Note the unified API, allowing us to degrade to long polling")))
-    (slide
-     (h1 "Putting it all together"))
-    (slide
-     (h1 "Finis")))))
+    (defn stream-slice-query-json
+      [request response resource]
+      (let [resource (hal/json-representation resource)]        
+        (with-channel request ch
+          (send! ch response false)
+          (with-open [writer (ch->writer ch)]
+            (json/generate-stream resource writer))
+          (close ch))
+        response))
+    ;;}}
+    ))
+  (slide
+   (h2 "WebSocket example")
+   (highlight
+    ;;{{
+    (defn ws-handler [request]
+      (with-channel request channel
+        (swap! channels conj channel)
+        (println "channel opened: " channel)
+        (on-close channel
+                  (fn [status]
+                    (swap! channels disj channel)
+                    (println "channel closed: " channel " - " status)))
+        (on-receive channel (fn [data]
+                              (println "data received: " data)
+                              (doseq [chan (disj @channels channel)]
+                                (println "sending data: " channel " - " data)
+                                (send! chan data))))))
+    ;;}}
+    )
+   (notes "Note the unified API, allowing us to degrade to long polling")))
+ (slide
+  (h1 "Putting it all together"))
+ (slide
+  (h1 "Finis")))
