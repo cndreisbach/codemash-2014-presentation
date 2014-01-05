@@ -1,6 +1,10 @@
 (page "index.html"
       (:require [slides :as s :refer [slide notes highlight t quicklist]]))
 
+(defn url
+  [href]
+  (a {:href href} href))
+
 (html
  (head)
  (body
@@ -75,7 +79,7 @@
       (li "ClojureScript can be represented as HTML"))
      (notes "One of the ideas that led to Hoplon is the idea that HTML is a Lisp. In Hoplon, you can create pages using either HTML or ClojureScript."))
     (slide
-     :title (h3 "Hoplon with HTML syntax")
+     :title "Hoplon with HTML syntax"
      (highlight
       ;;{{
       <script type="text/hoplon">
@@ -100,7 +104,7 @@
       ;;}}       
       ))
     (slide
-     :title (h3 "Hoplon with CLJS syntax")
+     :title "Hoplon with CLJS syntax"
      (highlight
       ;;{{
       (page "index.html")
@@ -217,7 +221,7 @@
       (li "Resources are Ring handlers"))
      (notes "Liberator implements RFC 2616, the HTTP 1.1 spec. It heelps create REST resources. At their core, these resources are decision trees."))
     (slide
-     (h3 "Simple Liberator decision tree")
+     :title "Simple Liberator decision tree"
      (img :src "img/simple-liberator.png"))
     (slide
      (h2 "Simple Liberator example")
@@ -281,7 +285,7 @@
       )
      (notes "Instead of returning a map from a decision function, we can return a length-2 vector, where the first element is whether the decision passed and the second is the map to update the context with."))
     (slide
-     (h3 "More complex decision tree")
+     :title "More complex decision tree"
      (img :src "img/complex-liberator.png"))
     (slide
      (h2 "Liberator decisions")
@@ -376,7 +380,7 @@
       ;;}}
       ))
     (slide
-     (h3 "Streaming an OutputStream")
+     :title "Streaming an OutputStream"
      (highlight
       ;;{{
       (defn ch->outputstream [ch]
@@ -423,6 +427,24 @@
       )
      (notes "Note the unified API, allowing us to degrade to long polling")))
    (slide
-    (h1 "Putting it all together"))
+    (slide
+     (h1 "Putting it all together"))
+    (slide
+     :title "Review"
+     (ul
+      (li "Clojure is a great language for web development")
+      (li "Look at Luminus for a good prepackaged collection of libraries")
+      (li "Hoplon makes dynamic front-ends easy")
+      (li "Liberator handles all the scutwork of making REST APIs")
+      (li "HTTP Kit is a speedy Clojure web server that handles streaming, polling, and WebSockets with ease")))
+    (slide
+     :title "Resources"
+     (ul
+      (li (url "http://www.luminusweb.net/"))
+      (li (url "http://hoplon.io/"))
+      (li (url "http://clojure-liberator.github.io/liberator/"))
+      (li (url "http://http-kit.org/"))
+      (li (url "http://clojure-doc.org/"))
+      (li (url "http://clojurewebdev.com/")))))
    (slide
     (h1 "Finis")))))
