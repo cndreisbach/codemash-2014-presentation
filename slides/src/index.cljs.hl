@@ -67,6 +67,18 @@
       )
      (notes "We are going to use the CLJS syntax for the rest of the presentation, but the HTML syntax can do anything the CLJS syntax can."))
     (slide
+     :title "defelem"
+     (highlight
+      ;;{{
+      (defelem slideshow
+        [attrs children]
+        (div :class "reveal"
+             (div (assoc attrs :class "slides")
+                  children)))
+      ;;}}
+      )
+     (notes "defelem is the preferred way to create functions that act like HTML elements. It allows for the syntactic sugar you see with all Hoplon elements."))
+    (slide
      :title "Slideshows with Hoplon"
      (highlight
       ;;{{
