@@ -447,4 +447,8 @@
       (li (url "http://clojure-doc.org/"))
       (li (url "http://clojurewebdev.com/")))))
    (slide
-    (h1 "Finis")))))
+    (h1 "Finis")
+    (p "@cndreisbach at Twitter, Github, etc")
+    (p "clinton@dreisbach.us")
+    (p "http://prompt.sh")
+    (p "Come to the lightning talks tonight!")))))
