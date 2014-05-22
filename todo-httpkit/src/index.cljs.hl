@@ -9,9 +9,10 @@
 (page "index.html"
   (:refer-clojure :exclude [nth])
   (:require
-    [tailrecursion.hoplon.util          :refer [nth name pluralize route-cell]]
-    [tailrecursion.hoplon.storage-atom  :refer [local-storage]]
-    [cljs.reader                        :refer [read-string]]))
+   [tailrecursion.hoplon :refer [route-cell]]
+   [tailrecursion.hoplon.util          :refer [nth name pluralize]]
+   [tailrecursion.hoplon.storage-atom  :refer [local-storage]]
+   [cljs.reader                        :refer [read-string]]))
 
 ;; utility functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -57,7 +58,7 @@
 
 (defc  loaded?      false)
 (defc  editing      nil)
-(def   route        (route-cell 100 "#/"))
+(def   route        (route-cell "#/"))
 
 ;; formula cells (computed state) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

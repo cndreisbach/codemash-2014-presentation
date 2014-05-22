@@ -31,12 +31,6 @@
 ;; GET /todo/:id - return todo
 ;; POST /todo/:id - update todo
 
-(defn app
-  [req]
-  {:status  200
-   :headers {"Content-Type" "text/html"}
-   :body    "hello HTTP!!!!"})
-
 (defresource todos-resource
   :allowed-methods [:get :post]
   :available-media-types ["application/edn"]
@@ -88,6 +82,10 @@
       (@stop-server))
     (reset! stop-server (run-server handler {:port 3000}))
     @stop-server))
+
+(defn app
+  [req]
+  (site #'all-routes))
 
 (defn -main
   [& args]

@@ -10,7 +10,8 @@
   (:refer-clojure :exclude [nth])
   (:require
    [storage.rest :refer [null-storage rest-storage]]
-   [tailrecursion.hoplon.util          :refer [nth name pluralize route-cell]]
+   [tailrecursion.hoplon :refer [route-cell]]
+   [tailrecursion.hoplon.util          :refer [nth name pluralize]]
    [tailrecursion.hoplon.storage-atom  :refer [local-storage]]))
 
 ;; utility functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -41,7 +42,7 @@
 ;; local state cells ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defc  editing      nil)
-(def   route        (route-cell 100 "#/"))
+(def   route        (route-cell "#/"))
 
 ;; formula cells (computed state) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
