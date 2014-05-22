@@ -12,8 +12,7 @@
    :theme "sky"
    (slide
     (h1 "Secrets of Clojure Web Development")
-    (t "Clinton N. Dreisbach")
-    (t "CodeMash 2014"))
+    (t "Clinton N. Dreisbach"))
    (slide
     (slide
      :title "The Big Secret"
@@ -450,5 +449,4 @@
     (h1 "Finis")
     (p "@cndreisbach at Twitter, Github, etc")
     (p "clinton@dreisbach.us")
-    (p "http://prompt.sh")
-    (p "Come to the lightning talks tonight!")))))
+    (p "http://prompt.sh")))))
